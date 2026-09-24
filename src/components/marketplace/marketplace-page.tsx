@@ -55,7 +55,8 @@ export function MarketplacePage() {
             Marketplace Connections
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Link your seller accounts to sync products, inventory, and orders.
+            Connect demo seller accounts (API-backed). Credentials are stored
+            for this guest demo only — not real marketplace OAuth.
           </p>
         </div>
         <p className="text-muted-foreground text-xs sm:text-sm">

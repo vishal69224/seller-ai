@@ -3,11 +3,11 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
-  Warehouse,
-  Store,
   History,
   BarChart3,
   Settings,
+  Clapperboard,
+  Store,
   X,
   StoreIcon,
 } from "lucide-react"
@@ -18,10 +18,10 @@ import { Button } from "@/components/ui/button"
 const menuItems = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/" },
   { label: "Products", icon: Package, to: "/products" },
-  { label: "Orders", icon: ShoppingCart, to: "/orders" },
-  { label: "Inventory", icon: Warehouse, to: "/inventory", disabled: true },
   { label: "Marketplace", icon: Store, to: "/marketplace" },
+  { label: "Orders", icon: ShoppingCart, to: "/orders" },
   { label: "Upload History", icon: History, to: "/upload-history" },
+  { label: "Video Generator", icon: Clapperboard, to: "/video-generator" },
   { label: "Analytics", icon: BarChart3, to: "/analytics" },
   { label: "Settings", icon: Settings, to: "/settings" },
 ]
@@ -58,7 +58,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               Seller Hub
             </p>
             <p className="truncate text-[11px] text-sidebar-foreground/60">
-              Multi Marketplace
+              Multi-marketplace admin
             </p>
           </div>
           <Button
@@ -79,20 +79,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             </p>
             {menuItems.map((item) => {
               const Icon = item.icon
-              if (item.disabled) {
-                return (
-                  <button
-                    key={item.label}
-                    type="button"
-                    disabled
-                    className="flex w-full cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/40"
-                  >
-                    <Icon className="h-4 w-4 shrink-0 opacity-50" />
-                    {item.label}
-                  </button>
-                )
-              }
-
               return (
                 <NavLink
                   key={item.label}
@@ -133,10 +119,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         <div className="border-t border-sidebar-border p-4">
           <div className="rounded-lg bg-sidebar-accent/70 p-3">
             <p className="text-xs font-semibold text-sidebar-accent-foreground">
-              Pro Plan
+              Portfolio demo
             </p>
             <p className="mt-1 text-[11px] leading-relaxed text-sidebar-foreground/60">
-              Sync unlimited marketplaces and automate listings.
+              Manage products, connect marketplaces, and generate AI showcase
+              videos.
             </p>
           </div>
         </div>

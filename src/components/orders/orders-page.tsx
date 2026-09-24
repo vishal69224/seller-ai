@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { SampleDataBadge } from "@/components/ui/sample-data-badge"
 import {
   Select,
   SelectContent,
@@ -106,13 +107,16 @@ export function OrdersPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-          Orders
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Monitor orders, payments, and delivery across marketplaces.
-        </p>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            Orders
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            UI demo for filtering payments and delivery across channels.
+          </p>
+        </div>
+        <SampleDataBadge className="self-start" />
       </div>
 
       <div className="bg-card flex flex-col gap-3 rounded-xl border p-4 shadow-sm lg:flex-row lg:items-center">

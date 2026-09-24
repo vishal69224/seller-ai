@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import {
   ArrowLeft,
   CheckCircle2,
+  Clapperboard,
   PackageX,
   Save,
   Trash2,
@@ -180,11 +181,18 @@ export function EditProductPage() {
           </div>
           <p className="text-muted-foreground text-sm">
             Update listing details for{" "}
-            <span className="text-foreground font-medium">{product.sku}</span> on{" "}
-            {product.marketplace}.
+            <span className="text-foreground font-medium">{product.sku}</span>.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {product.images.length > 0 && (
+            <Button type="button" variant="outline" asChild>
+              <Link to={`/video-generator?productId=${product.id}`}>
+                <Clapperboard />
+                Generate video
+              </Link>
+            </Button>
+          )}
           <Button
             type="button"
             variant="destructive"
@@ -300,6 +308,14 @@ export function EditProductPage() {
           Changes are saved to MongoDB through the API.
         </p>
         <div className="flex flex-wrap gap-2">
+          {product.images.length > 0 && (
+            <Button type="button" variant="outline" asChild>
+              <Link to={`/video-generator?productId=${product.id}`}>
+                <Clapperboard />
+                Generate video
+              </Link>
+            </Button>
+          )}
           <Button
             type="button"
             variant="destructive"

@@ -65,7 +65,7 @@ export function ViewProductDialog({
                 <dd className="mt-0.5 font-medium">{product.category}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground text-xs">Marketplace</dt>
+                <dt className="text-muted-foreground text-xs">Channel</dt>
                 <dd className="mt-0.5 font-medium">{product.marketplace}</dd>
               </div>
               <div className="col-span-2">
@@ -117,7 +117,7 @@ export function EditProductDialog({
       category: "Electronics",
       price: 0,
       stock: 0,
-      marketplace: "Amazon",
+      marketplace: "Website",
       status: "draft",
       imageColor: "bg-primary/15 text-primary",
       imageInitials: "NP",
@@ -208,11 +208,11 @@ export function EditProductDialog({
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="product-marketplace">Marketplace</Label>
+            <Label htmlFor="product-marketplace">Channel</Label>
             <Input
               id="product-marketplace"
               name="marketplace"
-              defaultValue={product?.marketplace ?? "Amazon"}
+              defaultValue={product?.marketplace ?? "Website"}
               required
             />
           </div>

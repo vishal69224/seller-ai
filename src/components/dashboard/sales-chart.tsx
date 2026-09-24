@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { SampleDataBadge } from "@/components/ui/sample-data-badge"
 
 const bars = [
   { label: "Jan", height: 42 },
@@ -21,10 +22,11 @@ export function SalesChart() {
       <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
         <div>
           <CardTitle>Sales Overview</CardTitle>
-          <CardDescription>Monthly revenue across all marketplaces</CardDescription>
+          <CardDescription>Illustrative monthly revenue trend</CardDescription>
         </div>
-        <div className="flex items-center gap-3 text-xs">
-          <span className="flex items-center gap-1.5">
+        <div className="flex flex-col items-end gap-2">
+          <SampleDataBadge />
+          <span className="flex items-center gap-1.5 text-xs">
             <span className="h-2 w-2 rounded-full bg-primary" />
             Revenue
           </span>

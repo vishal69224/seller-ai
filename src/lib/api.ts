@@ -72,11 +72,6 @@ export type User = {
   address?: string | null
 }
 
-export type TokenResponse = {
-  access_token: string
-  token_type: string
-}
-
 export type ApiProduct = {
   id: string
   name: string
@@ -117,23 +112,6 @@ export type ApiMarketplace = {
 }
 
 export const api = {
-  register: (body: {
-    name: string
-    email: string
-    password: string
-    phone?: string
-  }) =>
-    request<TokenResponse>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }, false),
-
-  login: (body: { email: string; password: string }) =>
-    request<TokenResponse>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }, false),
-
   me: () => request<User>("/auth/me"),
 
   updateMe: (body: Partial<User>) =>
@@ -205,6 +183,99 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }),
+
+  videoHealth: () => request<VideoHealth>("/video/health"),
+
+  videoCredits: () => request<{ credits: number | null }>("/video/credits"),
+
+  videoGenerate: (form: FormData) =>
+    requestMultipart<VideoGenerateResponse>("/video/generate", form),
+
+  videoTaskStatus: (taskId: string) =>
+    request<VideoTaskStatus>(`/video/tasks/${encodeURIComponent(taskId)}`),
+
+  videoGallery: () => request<{ items: VideoGalleryItem[] }>("/video/gallery"),
+}
+
+export type VideoModel = {
+  key: string
+  label: string
+  description: string
+  cost_tier: "low" | "mid" | "high"
+  cost_hint: string
+  max_images: number
+  second_image_label: string
+  durations: number[]
+  resolutions: string[]
+  default_duration: number
+  default_resolution: string
+  supports_audio: boolean
+  supports_mode: boolean
+}
+
+export type VideoHealth = {
+  ok: boolean
+  api_key_configured: boolean
+  models: VideoModel[]
+  default_prompt: string
+  default_model: string
+}
+
+export type VideoGenerateResponse = {
+  task_id: string
+  model: string
+  model_id: string
+  image_urls: string[]
+  prompt: string
+}
+
+export type VideoTaskStatus = {
+  task_id: string
+  state: string
+  fail_msg: string
+  credits_consumed?: number | null
+  result_urls: string[]
+  video_urls: string[]
+  local_paths: string[]
+}
+
+export type VideoGalleryItem = {
+  name: string
+  url: string
+  size_mb: number
+}
+
+async function requestMultipart<T>(path: string, body: FormData): Promise<T> {
+  const headers = new Headers()
+  const token = getToken()
+  if (token) headers.set("Authorization", `Bearer ${token}`)
+
+  const response = await fetch(`/api${path}`, {
+    method: "POST",
+    headers,
+    body,
+  })
+
+  const text = await response.text()
+  const data = text ? JSON.parse(text) : null
+
+  if (!response.ok) {
+    const detail =
+      typeof data?.detail === "string"
+        ? data.detail
+        : Array.isArray(data?.detail)
+          ? data.detail.map((d: { msg?: string }) => d.msg).join(", ")
+          : "Request failed"
+    throw new ApiError(response.status, detail)
+  }
+
+  return data as T
+}
+
+export async function dataUrlToFile(dataUrl: string, filename: string): Promise<File> {
+  const response = await fetch(dataUrl)
+  const blob = await response.blob()
+  return new File([blob], filename, { type: blob.type || "image/png" })
 }
 
 export function fileToDataUrl(file: File): Promise<string> {

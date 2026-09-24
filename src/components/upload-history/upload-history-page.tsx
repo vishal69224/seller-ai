@@ -10,6 +10,7 @@ import {
 } from "@/data/upload-history"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { SampleDataBadge } from "@/components/ui/sample-data-badge"
 import {
   Select,
   SelectContent,
@@ -65,13 +66,16 @@ export function UploadHistoryPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-          Upload History
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Track product uploads and sync results across marketplaces.
-        </p>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            Upload History
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Example sync log UI for bulk uploads across channels.
+          </p>
+        </div>
+        <SampleDataBadge className="self-start" />
       </div>
 
       <div className="bg-card flex flex-col gap-3 rounded-xl border p-4 shadow-sm sm:flex-row sm:items-center">

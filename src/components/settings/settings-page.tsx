@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
 import { CheckCircle2, Moon, Sun } from "lucide-react"
 import { useTheme } from "@/hooks/use-theme"
 import { useAuth } from "@/context/auth-context"
-import { api, ApiError } from "@/lib/api"
+import { ApiError } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -16,8 +15,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 export function SettingsPage() {
@@ -26,9 +23,6 @@ export function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState("")
   const [saving, setSaving] = useState(false)
-  const [connections, setConnections] = useState<
-    { name: string; status: string }[]
-  >([])
 
   const [profile, setProfile] = useState({
     name: "",
@@ -63,27 +57,6 @@ export function SettingsPage() {
       address: user.address ?? "",
     })
   }, [user])
-
-  useEffect(() => {
-    void (async () => {
-      try {
-        const data = await api.listMarketplaces()
-        setConnections(
-          data.map((m) => ({
-            name: m.name,
-            status:
-              m.status === "connected"
-                ? "Connected"
-                : m.status === "pending"
-                  ? "Pending"
-                  : "Not Connected",
-          }))
-        )
-      } catch {
-        setConnections([])
-      }
-    })()
-  }, [])
 
   const handleSave = async () => {
     setSaving(true)
@@ -179,7 +152,7 @@ export function SettingsPage() {
         <CardHeader>
           <CardTitle>Business Information</CardTitle>
           <CardDescription>
-            Company details used for invoices and marketplace onboarding.
+            Company details used for invoices and your store.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -216,41 +189,6 @@ export function SettingsPage() {
               className="min-h-24"
             />
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-          <div>
-            <CardTitle>Marketplace Connections</CardTitle>
-            <CardDescription>
-              Quick view of linked seller accounts.
-            </CardDescription>
-          </div>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/marketplace">Manage</Link>
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {connections.map((item, index) => (
-            <div key={item.name}>
-              <div className="flex items-center justify-between gap-3 py-1">
-                <p className="text-sm font-medium">{item.name}</p>
-                <Badge
-                  variant={
-                    item.status === "Connected"
-                      ? "success"
-                      : item.status === "Pending"
-                        ? "warning"
-                        : "muted"
-                  }
-                >
-                  {item.status}
-                </Badge>
-              </div>
-              {index < connections.length - 1 && <Separator />}
-            </div>
-          ))}
         </CardContent>
       </Card>
 

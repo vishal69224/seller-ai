@@ -6,6 +6,7 @@ import {
   topProducts,
 } from "@/data/analytics"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { SampleDataBadge } from "@/components/ui/sample-data-badge"
 import { cn } from "@/lib/utils"
 
 function MetricCard({
@@ -73,13 +74,16 @@ export function AnalyticsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-          Analytics
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Performance insights across revenue, orders, and products.
-        </p>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            Analytics
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Illustrative charts for the portfolio UI — not live order data.
+          </p>
+        </div>
+        <SampleDataBadge className="self-start" />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

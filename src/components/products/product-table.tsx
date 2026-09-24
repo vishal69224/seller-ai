@@ -62,7 +62,7 @@ export function ProductTable({
                 Stock
               </th>
               <th className="text-muted-foreground px-4 py-3 font-semibold">
-                Marketplace
+                Channel
               </th>
               <th className="text-muted-foreground px-4 py-3 font-semibold">
                 Status

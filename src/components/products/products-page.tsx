@@ -102,7 +102,7 @@ export function ProductsPage() {
             Products
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Manage your catalog across all connected marketplaces.
+            Manage your catalog for your website.
           </p>
         </div>
         <Button asChild className="shrink-0">

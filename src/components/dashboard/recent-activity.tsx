@@ -7,6 +7,7 @@ import {
   Upload,
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { SampleDataBadge } from "@/components/ui/sample-data-badge"
 import { cn } from "@/lib/utils"
 
 const activities = [
@@ -63,9 +64,12 @@ const activities = [
 export function RecentActivity() {
   return (
     <Card className="h-full">
-      <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
-        <CardDescription>Latest updates across your marketplaces</CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
+        <div>
+          <CardTitle>Recent Activity</CardTitle>
+          <CardDescription>Example feed for the portfolio demo</CardDescription>
+        </div>
+        <SampleDataBadge />
       </CardHeader>
       <CardContent>
         <ul className="space-y-1">

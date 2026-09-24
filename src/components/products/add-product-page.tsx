@@ -2,21 +2,17 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import {
   ArrowLeft,
-  Check,
   CheckCircle2,
   Eye,
   FileText,
   Loader2,
-  Lock,
   Upload,
-  X,
 } from "lucide-react"
 import { productCategories } from "@/data/products"
 import {
   ImageUploadZone,
   type PreviewImage,
 } from "@/components/products/image-upload-zone"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -43,8 +39,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
 import { api, ApiError, fileToDataUrl } from "@/lib/api"
 
 const categories = productCategories.filter((c) => c !== "All Categories")
@@ -58,16 +52,6 @@ const brands = [
   "UrbanNest",
   "Other",
 ]
-
-type PublishMarketplace = {
-  id: string
-  name: string
-  connected: boolean
-  initials: string
-  logoBg: string
-  brandColor: string
-  note: string
-}
 
 type Feedback = {
   type: "draft" | "publish" | "error"
@@ -91,10 +75,6 @@ export function AddProductPage() {
   const [width, setWidth] = useState("8")
   const [height, setHeight] = useState("4")
   const [images, setImages] = useState<PreviewImage[]>([])
-  const [publishMarketplaces, setPublishMarketplaces] = useState<
-    PublishMarketplace[]
-  >([])
-  const [selectedMarketplaces, setSelectedMarketplaces] = useState<string[]>([])
   const [feedback, setFeedback] = useState<Feedback>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -109,33 +89,6 @@ export function AddProductPage() {
     }
   }, [])
 
-  useEffect(() => {
-    void (async () => {
-      try {
-        const data = await api.listMarketplaces()
-        const mapped = data.map((m) => ({
-          id: m.marketplace_id,
-          name: m.name,
-          connected: m.status === "connected",
-          initials: m.initials,
-          logoBg: m.logo_bg,
-          brandColor: m.brand_color,
-          note:
-            m.status === "connected"
-              ? `Connected · ${m.credentials.seller_id || m.credentials.merchant_id || "Linked"}`
-              : "Not Connected",
-        }))
-        setPublishMarketplaces(mapped)
-        setSelectedMarketplaces(
-          mapped.filter((m) => m.connected).map((m) => m.id).slice(0, 2)
-        )
-      } catch {
-        // Keep empty list if API fails; user still sees the section.
-        setPublishMarketplaces([])
-      }
-    })()
-  }, [])
-
   const discountedPrice = useMemo(() => {
     if (!price) return null
     const base = Number(price)
@@ -143,18 +96,6 @@ export function AddProductPage() {
     if (Number.isNaN(base)) return null
     return Math.max(0, base - (base * off) / 100)
   }, [price, discount])
-
-  const connectedCount = publishMarketplaces.filter((m) => m.connected).length
-  const selectedConnected = selectedMarketplaces.filter((id) =>
-    publishMarketplaces.some((m) => m.id === id && m.connected)
-  )
-
-  const toggleMarketplace = (id: string, connected: boolean) => {
-    if (!connected) return
-    setSelectedMarketplaces((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    )
-  }
 
   const buildPayload = async (status: "draft" | "active") => {
     const imageUrls: string[] = []
@@ -169,17 +110,6 @@ export function AddProductPage() {
       }
     }
 
-    const targets =
-      status === "draft"
-        ? selectedConnected
-        : selectedConnected.length > 0
-          ? selectedConnected
-          : []
-
-    const marketplaceNames = publishMarketplaces
-      .filter((m) => targets.includes(m.id))
-      .map((m) => m.name)
-
     return {
       name: name.trim() || "Untitled Product",
       description,
@@ -189,8 +119,8 @@ export function AddProductPage() {
       price: Number(price) || 0,
       discount: Number(discount) || 0,
       stock: Number(stock) || 0,
-      marketplace: marketplaceNames[0] || "Amazon",
-      marketplaces: targets,
+      marketplace: "Website",
+      marketplaces: ["website"],
       status,
       images: imageUrls,
       weight: weight === "" ? null : Number(weight),
@@ -207,7 +137,7 @@ export function AddProductPage() {
       await api.createProduct(await buildPayload("draft"))
       setFeedback({
         type: "draft",
-        message: "Draft saved to MongoDB successfully.",
+        message: "Draft saved successfully.",
       })
     } catch (err) {
       setFeedback({
@@ -224,25 +154,14 @@ export function AddProductPage() {
       setFeedback({ type: "error", message: "Product name is required." })
       return
     }
-    if (selectedConnected.length === 0) {
-      setFeedback({
-        type: "error",
-        message: "Select at least one connected marketplace to publish.",
-      })
-      return
-    }
 
     setFeedback(null)
     setSaving(true)
     try {
       await api.createProduct(await buildPayload("active"))
-      const names = publishMarketplaces
-        .filter((m) => selectedConnected.includes(m.id))
-        .map((m) => m.name)
-        .join(", ")
       setFeedback({
         type: "publish",
-        message: `Product published and saved for ${names}.`,
+        message: "Product published to your website.",
       })
       window.setTimeout(() => navigate("/products"), 900)
     } catch (err) {
@@ -268,14 +187,11 @@ export function AddProductPage() {
             Products
           </Link>
           <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-                Add product
-              </h1>
-              <Badge variant="secondary">Draft</Badge>
-            </div>
+            <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+              Add Product
+            </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Create a listing and choose which marketplaces to publish to.
+              Create a listing to upload on your website.
             </p>
           </div>
         </div>
@@ -311,29 +227,26 @@ export function AddProductPage() {
 
       {feedback && (
         <div
-          className={cn(
-            "flex items-start gap-2 rounded-xl border px-4 py-3 text-sm",
+          className={
             feedback.type === "error"
-              ? "border-destructive/30 bg-destructive/10 text-destructive"
-              : "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-          )}
+              ? "border-destructive/30 bg-destructive/10 text-destructive rounded-xl border px-4 py-3 text-sm"
+              : "flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400"
+          }
         >
-          {feedback.type !== "error" ? (
-            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-          ) : (
-            <X className="mt-0.5 h-4 w-4 shrink-0" />
+          {feedback.type !== "error" && (
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
           )}
           {feedback.message}
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="flex flex-col gap-6 lg:col-span-2">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="flex flex-col gap-6">
           <Card className="shadow-sm">
             <CardHeader>
               <CardTitle>Product information</CardTitle>
               <CardDescription>
-                Core catalog details shown across your marketplaces.
+                Core catalog details shown on your website.
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
@@ -343,7 +256,7 @@ export function AddProductPage() {
                   id="product-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Wireless Earbuds Pro"
+                  placeholder="Product name"
                 />
               </div>
               <div className="grid gap-2">
@@ -353,10 +266,8 @@ export function AddProductPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="min-h-32"
-                  placeholder="Describe features, materials, and what’s included…"
                 />
               </div>
-
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="product-price">Price (₹)</Label>
@@ -380,16 +291,6 @@ export function AddProductPage() {
                   />
                 </div>
               </div>
-
-              {discountedPrice !== null && (
-                <p className="text-muted-foreground text-sm">
-                  Selling price after discount:{" "}
-                  <span className="text-foreground font-semibold">
-                    ₹{Math.round(discountedPrice).toLocaleString("en-IN")}
-                  </span>
-                </p>
-              )}
-
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="product-brand">Brand</Label>
@@ -425,7 +326,6 @@ export function AddProductPage() {
                   </Select>
                 </div>
               </div>
-
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="product-sku">SKU</Label>
@@ -433,7 +333,6 @@ export function AddProductPage() {
                     id="product-sku"
                     value={sku}
                     onChange={(e) => setSku(e.target.value)}
-                    placeholder="e.g. EL-WEB-001"
                   />
                 </div>
                 <div className="grid gap-2">
@@ -447,10 +346,7 @@ export function AddProductPage() {
                   />
                 </div>
               </div>
-
-              <Separator />
-
-              <div className="grid gap-4 sm:grid-cols-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="product-weight">Weight (kg)</Label>
                   <Input
@@ -463,34 +359,33 @@ export function AddProductPage() {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="product-length">Length (cm)</Label>
-                  <Input
-                    id="product-length"
-                    type="number"
-                    min={0}
-                    value={length}
-                    onChange={(e) => setLength(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="product-width">Width (cm)</Label>
-                  <Input
-                    id="product-width"
-                    type="number"
-                    min={0}
-                    value={width}
-                    onChange={(e) => setWidth(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="product-height">Height (cm)</Label>
-                  <Input
-                    id="product-height"
-                    type="number"
-                    min={0}
-                    value={height}
-                    onChange={(e) => setHeight(e.target.value)}
-                  />
+                  <Label>Dimensions (cm)</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Input
+                      aria-label="Length"
+                      placeholder="L"
+                      type="number"
+                      min={0}
+                      value={length}
+                      onChange={(e) => setLength(e.target.value)}
+                    />
+                    <Input
+                      aria-label="Width"
+                      placeholder="W"
+                      type="number"
+                      min={0}
+                      value={width}
+                      onChange={(e) => setWidth(e.target.value)}
+                    />
+                    <Input
+                      aria-label="Height"
+                      placeholder="H"
+                      type="number"
+                      min={0}
+                      value={height}
+                      onChange={(e) => setHeight(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -500,7 +395,8 @@ export function AddProductPage() {
             <CardHeader>
               <CardTitle>Product images</CardTitle>
               <CardDescription>
-                Upload multiple images. Drag to reorder — first image is the cover.
+                Upload multiple images. Drag to reorder — first image is the
+                cover.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -512,90 +408,14 @@ export function AddProductPage() {
         <div className="flex flex-col gap-6">
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle>Publish to marketplace</CardTitle>
+              <CardTitle>Publish to website</CardTitle>
               <CardDescription>
-                {connectedCount} connected · select where this product goes live.
+                Products are saved to your catalog and shown on your store.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {publishMarketplaces.length === 0 && (
-                <p className="text-muted-foreground text-sm">
-                  No marketplaces loaded. Connect one from the Marketplace page
-                  first.
-                </p>
-              )}
-              {publishMarketplaces.map((marketplace) => {
-                const selected = selectedMarketplaces.includes(marketplace.id)
-                const disabled = !marketplace.connected
-                return (
-                  <button
-                    key={marketplace.id}
-                    type="button"
-                    disabled={disabled}
-                    onClick={() =>
-                      toggleMarketplace(marketplace.id, marketplace.connected)
-                    }
-                    className={cn(
-                      "flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors",
-                      disabled
-                        ? "cursor-not-allowed opacity-60"
-                        : "hover:bg-muted/40",
-                      selected && marketplace.connected
-                        ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                        : "border-border"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold",
-                        marketplace.logoBg,
-                        marketplace.brandColor
-                      )}
-                    >
-                      {marketplace.initials}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="font-medium">{marketplace.name}</p>
-                        {marketplace.connected ? (
-                          selected ? (
-                            <span className="bg-primary text-primary-foreground flex h-5 w-5 items-center justify-center rounded-full">
-                              <Check className="h-3 w-3" />
-                            </span>
-                          ) : (
-                            <span className="border-muted-foreground/40 h-5 w-5 rounded-full border" />
-                          )
-                        ) : (
-                          <Lock className="text-muted-foreground h-4 w-4" />
-                        )}
-                      </div>
-                      <p className="text-muted-foreground mt-0.5 text-xs">
-                        {marketplace.connected ? (
-                          <span className="text-emerald-600 dark:text-emerald-400">
-                            ✓ Connected
-                          </span>
-                        ) : (
-                          <span className="text-rose-600 dark:text-rose-400">
-                            ✗ Not Connected
-                          </span>
-                        )}
-                        <span className="text-muted-foreground">
-                          {" · "}
-                          {marketplace.note.replace(/^(Connected|Not Connected)( · )?/, "")}
-                        </span>
-                      </p>
-                    </div>
-                  </button>
-                )
-              })}
-              <p className="text-muted-foreground pt-1 text-xs">
-                Selected:{" "}
-                <span className="text-foreground font-medium">
-                  {selectedConnected.length}
-                </span>{" "}
-                marketplace
-                {selectedConnected.length === 1 ? "" : "s"}
-              </p>
+            <CardContent className="text-muted-foreground text-sm">
+              No Meesho, Amazon, or other marketplace connection is required.
+              Publish uploads the listing to your own website catalog.
             </CardContent>
           </Card>
 
@@ -618,9 +438,14 @@ export function AddProductPage() {
                 <span className="font-medium">{images.length}</span>
               </div>
               <div className="flex justify-between gap-3">
+                <span className="text-muted-foreground">Channel</span>
+                <span className="font-medium">Website</span>
+              </div>
+              <div className="flex justify-between gap-3">
                 <span className="text-muted-foreground">Package</span>
                 <span className="font-medium">
-                  {length || "0"}×{width || "0"}×{height || "0"} cm · {weight || "0"} kg
+                  {length || "0"}×{width || "0"}×{height || "0"} cm ·{" "}
+                  {weight || "0"} kg
                 </span>
               </div>
             </CardContent>
@@ -630,7 +455,7 @@ export function AddProductPage() {
 
       <div className="bg-card/95 sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 shadow-lg backdrop-blur">
         <p className="text-muted-foreground text-xs sm:text-sm">
-          Saves to MongoDB through the API.
+          Saves to your website catalog through the API.
         </p>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -707,10 +532,7 @@ export function AddProductPage() {
                   </p>
                 )}
               </div>
-              <p className="text-muted-foreground text-xs">
-                {selectedConnected.length} marketplace
-                {selectedConnected.length === 1 ? "" : "s"} selected
-              </p>
+              <p className="text-muted-foreground text-xs">Website listing</p>
             </div>
           </div>
           <DialogFooter>
